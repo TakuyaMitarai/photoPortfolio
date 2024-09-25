@@ -27,11 +27,11 @@ const props = defineProps({
 
 .sticky-image {
   position: sticky;
-  top: 80px;
+  top: 40px;
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
   width: 100%;  /* デフォルト値 */
-  height: calc(100vh - 80px);  /* デフォルト値 */
+  height: calc(100vh - 40px);  /* デフォルト値 */
 }
 </style>

@@ -7,7 +7,8 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
 import AppHeader from './components/AppHeader.vue';
 import PhotoSection from './components/PhotoSection.vue';
 
@@ -16,18 +17,7 @@ import photo2 from './assets/photo2.jpg';
 import photo3 from './assets/photo3.jpg';
 import photo4 from './assets/photo4.jpg';
 
-export default {
-  name: 'App',
-  components: {
-    AppHeader,
-    PhotoSection,
-  },
-  data() {
-    return {
-      images: [photo1, photo2, photo3, photo4],
-    };
-  },
-};
+const images = ref([photo1, photo2, photo3, photo4]);
 </script>
 
 <style>
@@ -43,6 +33,6 @@ export default {
 }
 
 .content {
-  margin-top: 80px;
+  margin-top: 40px;
 }
 </style>
