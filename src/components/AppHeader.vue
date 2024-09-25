@@ -24,6 +24,7 @@ export default {
   color: white;
   font-family: 'Playfair Display', serif;
   font-size: 36px;
+  text-align: center;
   margin: 0;
 }
 </style>
