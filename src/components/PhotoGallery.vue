@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :class="{ 'fade-out': isFadingOut }">
     <header class="header">
       <div class="header-left">
         <button v-if="showBackButton" class="back-button" @click="goBack">
@@ -50,7 +50,11 @@ images.value = Object.keys(modules)
   })
   .map((key) => modules[key].default || modules[key]);
 
-const goBack = () => {
+// フェードアウト状態を管理
+const isFadingOut = ref(false);
+
+// ページ遷移を実行する関数
+const navigateBack = () => {
   router.push({ name: 'Gallery' }).then(() => {
     window.scrollTo({
       top: 0,
@@ -58,9 +62,23 @@ const goBack = () => {
     });
   });
 };
+
+// 戻るボタンのクリックハンドラ
+const goBack = () => {
+  isFadingOut.value = true;
+  // アニメーション時間後にナビゲーションを実行
+  setTimeout(() => {
+    navigateBack();
+  }, 500); // CSSのトランジション時間と一致させる（例: 500ms）
+};
 </script>
 
 <style scoped>
+.fade-out {
+  opacity: 0;
+  transition: opacity 0.5s ease-out;
+}
+
 .header {
   position: fixed;
   top: 0;
@@ -114,5 +132,9 @@ const goBack = () => {
 
 .gallery {
   margin-top: 55px; /* ヘッダーの高さ */
+  opacity: 1;
+  transition: opacity 0.5s ease-out;
 }
+
+/* 必要に応じて他の要素にもトランジションを追加 */
 </style>
