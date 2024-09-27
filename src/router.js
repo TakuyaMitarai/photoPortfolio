@@ -1,6 +1,9 @@
+// router.js
 import { createRouter, createWebHistory } from 'vue-router';
 import Gallery from './components/Gallery.vue';
 import PhotoGallery from './components/PhotoGallery.vue';
+import Research from './components/Research.vue'; // 追加
+import Information from './components/Information.vue'; // 追加
 
 const routes = [
   {
@@ -13,6 +16,16 @@ const routes = [
     name: 'PhotoGallery',
     component: PhotoGallery,
     props: true,
+  },
+  {
+    path: '/research',
+    name: 'Research',
+    component: Research,
+  },
+  {
+    path: '/information',
+    name: 'Information',
+    component: Information,
   },
 ];
 

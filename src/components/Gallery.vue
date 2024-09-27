@@ -163,7 +163,9 @@ onBeforeUnmount(() => {
   font-size: 21px;
   margin: 0;
   text-align: center;
+  white-space: nowrap; /* テキストを一行にまとめる */
 }
+
 
 .header-right {
   flex: 1;
@@ -180,7 +182,7 @@ onBeforeUnmount(() => {
   color: white; /* アイコンの色を白に設定 */
   cursor: pointer;
   position: relative;
-  margin-right: 20px; /* 右から左に20px移動 */
+  margin-right: 0px; /* 右から左に20px移動 */
 }
 
 .menu-icon svg {
@@ -226,10 +228,6 @@ onBeforeUnmount(() => {
   position: fixed;
   top: 56px; /* ヘッダーの高さ + padding の調整 */
   z-index: 999; /* ヘッダーの下に表示 */
-}
-
-.logo {
-  /* 既存のスタイルを維持 */
 }
 
 /* 明朝体フォントの設定 */
