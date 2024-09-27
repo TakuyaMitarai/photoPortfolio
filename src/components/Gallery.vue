@@ -1,5 +1,5 @@
 <template>
-  <transition name="fade" @after-leave="afterLeave">
+  <transition name="fade" appear @after-leave="afterLeave">
     <div v-if="!isFadingOut" class="gallery-container">
       <header class="header">
         <h1 class="logo">Takuya Mitarai</h1>
@@ -164,7 +164,7 @@ onMounted(() => {
   display: block;
   object-fit: contain; /* 画像が切り取られないようにcontainに変更 */
   transform: scale(1); /* 初期状態 */
-  transition: transform 0.3s ease-in-out; /* ホバー時の拡大アニメーション */
+  transition: transform 0.5s ease-in-out; /* ホバー時の拡大アニメーション */
 }
 
 .gallery-item:hover .image-wrapper img {
@@ -178,7 +178,7 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0); /* 初期は透明 */
-  transition: background-color 0.3s;
+  transition: background-color 0.5s;
   pointer-events: none; /* オーバーレイがクリックを妨げないように */
 }
 
@@ -210,12 +210,32 @@ onMounted(() => {
 
 /* フェード遷移の定義 */
 .fade-enter-active,
-.fade-leave-active {
+.fade-leave-active,
+.fade-appear-active { /* 追加 */
   transition: opacity 0.5s;
 }
 .fade-enter-from,
-.fade-leave-to {
+.fade-leave-to,
+.fade-appear-from { /* 追加 */
   opacity: 0;
+}
+.fade-enter-to,
+.fade-leave-from,
+.fade-appear-to { /* 追加 */
+  opacity: 1;
+}
+
+/* フェードイン時に位置もアニメーション */
+.fade-appear-active {
+  transition: opacity 0.5s ease-in, transform 0.5s ease-in;
+}
+.fade-appear-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.fade-appear-to {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* 縦長ビューポイントの場合 */
