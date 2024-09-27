@@ -149,7 +149,7 @@ const goToPhotoSection = (folderName) => {
 
 .header-line {
   width: 100%;
-  height: 1px; /* ラインの太さ */
+  height: 2px; /* ラインの太さ */
   background-color: #ccc; /* ラインの色（グレー） */
   position: fixed;
   top: 56px; /* ヘッダーの高さ + padding の調整 */

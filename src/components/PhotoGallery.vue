@@ -75,7 +75,7 @@ const goBack = () => {
 
 .header-line {
   width: 100%;
-  height: 1px; /* ラインの太さ */
+  height: 2px; /* ラインの太さ */
   background-color: #ccc; /* ラインの色（グレー） */
   position: fixed;
   top: 56px; /* ヘッダーの高さ + padding の調整 */
@@ -84,7 +84,7 @@ const goBack = () => {
 
 .header-left,
 .header-right {
-  width: 50px; /* 戻るボタンの幅と同じに設定 */
+  width: 20px; /* 戻るボタンの幅と同じに設定 */
   display: flex;
   align-items: center;
   justify-content: center;
