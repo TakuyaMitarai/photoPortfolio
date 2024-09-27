@@ -1,26 +1,15 @@
 <template>
   <div id="app">
-    <AppHeader />
-    <div class="content">
-      <PhotoSection v-for="(image, index) in images" :key="index" :imageSrc="image" />
-    </div>
+    <router-view />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import AppHeader from './components/AppHeader.vue';
-import PhotoSection from './components/PhotoSection.vue';
-
-import photo1 from './assets/photo1.jpg';
-import photo2 from './assets/photo2.jpg';
-import photo3 from './assets/photo3.jpg';
-import photo4 from './assets/photo4.jpg';
-
-const images = ref([photo1, photo2, photo3, photo4]);
+// 特にスクリプトは必要ありません
 </script>
 
 <style>
+/* グローバルスタイル */
 * {
   margin: 0;
   padding: 0;
@@ -28,11 +17,8 @@ const images = ref([photo1, photo2, photo3, photo4]);
 }
 
 #app {
-  margin: 0;
-  padding: 0;
-}
-
-.content {
-  margin-top: 40px;
+  background-color: white; /* 背景色を白に変更 */
+  color: black; /* テキストカラーを黒に */
+  min-height: 100vh;
 }
 </style>

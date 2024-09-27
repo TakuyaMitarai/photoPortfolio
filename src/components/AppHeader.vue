@@ -13,15 +13,15 @@
   top: 0;
   width: 100%;
   background-color: black;
-  padding: 20px;
+  padding: 12px 20px;
   z-index: 1000;
+  text-align: center;
 }
 
 .logo {
   color: white;
   font-family: 'Playfair Display', serif;
-  font-size: 36px;
-  text-align: center;
+  font-size: 24px;
   margin: 0;
 }
 </style>
