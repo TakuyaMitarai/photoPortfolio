@@ -2,7 +2,37 @@
   <transition name="fade" appear @after-leave="afterLeave">
     <div v-if="!isFadingOut" class="gallery-container">
       <header class="header">
+        <div class="header-left"></div> <!-- 左側の空白部分 -->
         <h1 class="logo">Takuya Mitarai</h1>
+        <div class="header-right">
+          <div class="menu" ref="menu">
+            <div class="menu-icon" @click="toggleDropdown" aria-haspopup="true" :aria-expanded="showDropdown">
+              <!-- ハンバーガーアイコンのSVG -->
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="feather feather-menu"
+              >
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+              <!-- プルダウンメニュー -->
+              <div class="dropdown" v-if="showDropdown">
+                <router-link to="/" class="dropdown-item" @click="closeDropdown">Gallery</router-link>
+                <router-link to="/research" class="dropdown-item" @click="closeDropdown">Research</router-link>
+                <router-link to="/information" class="dropdown-item" @click="closeDropdown">Information</router-link>
+              </div>
+            </div>
+          </div>
+        </div>
       </header>
       <div class="header-line"></div>
       <!-- 余白を追加するためのコンテナ -->
@@ -31,13 +61,15 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { representativeImages } from '../data/representativePhotos.js'; // 名前付きエクスポートをインポート
 
 const router = useRouter();
 const isFadingOut = ref(false); // フェードアウト状態を管理
 const navigateTo = ref(null);   // 遷移先のルート情報を保持
+const showDropdown = ref(false); // ドロップダウンメニューの表示状態を管理
+const menu = ref(null); // メニューコンテナへの参照
 
 // フェードアウト後にページ遷移を実行する関数
 const afterLeave = () => {
@@ -50,6 +82,23 @@ const afterLeave = () => {
 const goToPhotoSection = (folderName) => {
   isFadingOut.value = true; // フェードアウトを開始
   navigateTo.value = { name: 'PhotoGallery', params: { folderName } }; // 遷移先を設定
+};
+
+// ドロップダウンメニューを切り替える関数
+const toggleDropdown = () => {
+  showDropdown.value = !showDropdown.value;
+};
+
+// ドロップダウンメニューを閉じる関数
+const closeDropdown = () => {
+  showDropdown.value = false;
+};
+
+// 外部クリックを検出してドロップダウンメニューを閉じる関数
+const handleClickOutside = (event) => {
+  if (menu.value && !menu.value.contains(event.target)) {
+    showDropdown.value = false;
+  }
 };
 
 // Intersection Observer の設定
@@ -78,6 +127,14 @@ onMounted(() => {
       observer.observe(image.elementRef);
     }
   });
+
+  // ドロップダウンメニュー外のクリックを監視
+  document.addEventListener('click', handleClickOutside);
+});
+
+// コンポーネントが破棄される前にイベントリスナーを削除
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside);
 });
 </script>
 
@@ -91,6 +148,75 @@ onMounted(() => {
   z-index: 1000;
   display: flex;
   align-items: center;
+  justify-content: space-between; /* 左右に配置 */
+}
+
+.header-left {
+  flex: 1; /* 左側の空白部分 */
+}
+
+.logo {
+  flex: 1;
+  color: white;
+  font-style: italic;
+  font-family: 'Yu Mincho', 'Hiragino Mincho Pro', 'MS Mincho', serif;
+  font-size: 21px;
+  margin: 0;
+  text-align: center;
+}
+
+.header-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end; /* 右寄せ */
+}
+
+.menu {
+  position: relative;
+  display: inline-block;
+}
+
+.menu-icon {
+  color: white; /* アイコンの色を白に設定 */
+  cursor: pointer;
+  position: relative;
+  margin-right: 20px; /* 右から左に20px移動 */
+}
+
+.menu-icon svg {
+  display: block;
+}
+
+/* プルダウンメニュー */
+.dropdown {
+  position: absolute;
+  top: 30px; /* アイコンの下に配置 */
+  right: 0;
+  background-color: rgba(0, 174, 130, 0); /* 背景色を白に設定 */
+  min-width: 100px;
+  box-shadow: 0px 8px 16px 0px rgba(255, 255, 255, 0.215);
+  z-index: 1;
+  border-radius: 4px;
+  overflow: hidden;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.dropdown-item {
+  color: rgb(255, 255, 255); /* テキスト色を黒に設定 */
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item:hover {
+  background-color:rgba(114, 114, 114, 0.502);
+}
+
+/* フェードインアニメーション */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .header-line {
@@ -103,13 +229,7 @@ onMounted(() => {
 }
 
 .logo {
-  flex: 1;
-  color: white;
-  font-style: italic;
-  font-family: 'Yu Mincho', 'Hiragino Mincho Pro', 'MS Mincho', serif;
-  font-size: 21px;
-  margin: 0;
-  text-align: center;
+  /* 既存のスタイルを維持 */
 }
 
 /* 明朝体フォントの設定 */
