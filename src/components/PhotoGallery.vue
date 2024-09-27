@@ -1,12 +1,19 @@
 <template>
   <div>
     <header class="header">
-      <button class="back-button" @click="goBack">
-        <i class="fas fa-arrow-left"></i>
-      </button>
+      <div class="header-left">
+        <button v-if="showBackButton" class="back-button" @click="goBack">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+      </div>
       <h1 class="logo">Takuya Mitarai</h1>
+      <div class="header-right">
+        <!-- 右側に配置する要素があればここに追加 -->
+      </div>
     </header>
+    <div class="header-line"></div>
     <div class="gallery">
+      <!-- 画像ギャラリーの内容 -->
       <PhotoSection
         v-for="(image, index) in images"
         :key="index"
@@ -28,6 +35,9 @@ const router = useRouter();
 const folderName = route.params.folderName;
 const images = ref([]);
 
+// 戻るボタンを表示するかどうかの判定
+const showBackButton = ref(true);
+
 // 画像の読み込み
 const modules = import.meta.glob('../assets/**/*.jpg', { eager: true });
 
@@ -41,7 +51,12 @@ images.value = Object.keys(modules)
   .map((key) => modules[key].default || modules[key]);
 
 const goBack = () => {
-  router.push({ name: 'Gallery' });
+  router.push({ name: 'Gallery' }).then(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth' // スムーズにスクロールしたい場合
+    });
+  });
 };
 </script>
 
@@ -55,6 +70,24 @@ const goBack = () => {
   z-index: 1000;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+}
+
+.header-line {
+  width: 100%;
+  height: 1px; /* ラインの太さ */
+  background-color: #ccc; /* ラインの色（グレー） */
+  position: fixed;
+  top: 56px; /* ヘッダーの高さ + padding の調整 */
+  z-index: 999; /* ヘッダーの下に表示 */
+}
+
+.header-left,
+.header-right {
+  width: 50px; /* 戻るボタンの幅と同じに設定 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .back-button {
@@ -63,7 +96,6 @@ const goBack = () => {
   color: white;
   font-size: 24px;
   cursor: pointer;
-  margin-right: 20px;
 }
 
 .back-button i {
@@ -73,13 +105,14 @@ const goBack = () => {
 .logo {
   flex: 1;
   color: white;
-  font-family: 'Playfair Display', serif;
-  font-size: 24px;
+  font-style: italic;
+  font-family: 'Yu Mincho', 'Hiragino Mincho Pro', 'MS Mincho', serif;
+  font-size: 21px;
   margin: 0;
   text-align: center;
 }
 
 .gallery {
-  margin-top: 50px; /* ヘッダーの高さ */
+  margin-top: 55px; /* ヘッダーの高さ */
 }
 </style>

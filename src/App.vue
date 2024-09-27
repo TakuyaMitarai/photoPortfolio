@@ -14,10 +14,11 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  background-color: black; /* 背景色を白に変更 */
 }
 
 #app {
-  background-color: white; /* 背景色を白に変更 */
+  background-color: black; /* 背景色を白に変更 */
   color: black; /* テキストカラーを黒に */
   min-height: 100vh;
 }

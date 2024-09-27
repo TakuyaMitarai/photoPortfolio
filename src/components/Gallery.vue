@@ -1,24 +1,30 @@
 <template>
   <div>
-    <AppHeader />
-    <div class="gallery">
-      <div
-        v-for="(image, index) in representativeImages"
-        :key="index"
-        class="gallery-item"
-        :class="{ 'fade-in': image.visible }"
-        @click="goToPhotoSection(image.name)"
-        :ref="(el) => (image.elementRef = el)"
-      >
-        <div class="content-wrapper">
-          <div class="image-wrapper">
-            <img :src="image.src" :alt="image.name" />
+    <header class="header">
+      <h1 class="logo">Takuya Mitarai</h1>
+    </header>
+    <div class="header-line"></div>
+    <!-- 余白を追加するためのコンテナ -->
+    <div class="gallery-container">
+      <div class="gallery">
+        <div
+          v-for="(image, index) in representativeImages"
+          :key="index"
+          class="gallery-item"
+          :class="{ 'fade-in': image.visible }"
+          @click="goToPhotoSection(image.name)"
+          :ref="(el) => (image.elementRef = el)"
+        >
+          <div class="content-wrapper">
+            <div class="image-wrapper">
+              <img :src="image.src" :alt="image.name" />
+            </div>
+            <div class="image-info">
+              <p class="image-title">{{ image.title }}</p>
+            </div>
           </div>
-          <div class="image-info">
-            <p class="image-title">{{ image.title }}</p>
-          </div>
+          <div class="overlay"></div>
         </div>
-        <div class="overlay"></div>
       </div>
     </div>
   </div>
@@ -26,7 +32,6 @@
 
 <script setup>
 import { reactive, onMounted } from 'vue';
-import AppHeader from './AppHeader.vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -131,18 +136,52 @@ const goToPhotoSection = (folderName) => {
 </script>
 
 <style scoped>
+.header {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-color: black;
+  padding: 12px 20px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+}
+
+.header-line {
+  width: 100%;
+  height: 1px; /* ラインの太さ */
+  background-color: #ccc; /* ラインの色（グレー） */
+  position: fixed;
+  top: 56px; /* ヘッダーの高さ + padding の調整 */
+  z-index: 999; /* ヘッダーの下に表示 */
+}
+
+.logo {
+  flex: 1;
+  color: white;
+  font-style: italic;
+  font-family: 'Yu Mincho', 'Hiragino Mincho Pro', 'MS Mincho', serif;
+  font-size: 21px;
+  margin: 0;
+  text-align: center;
+}
 /* 明朝体フォントの設定 */
+.gallery-container {
+  /* ヘッダーとギャラリーの間に余白を追加 */
+  margin-top: 91px; /* 必要に応じて調整してください */
+  background-color: black;
+}
+
 .gallery, .image-title {
-  font-family:"UD デジタル 教科書体 N-R", "BIZ UDゴシック Regular", "Hiragino Kaku Gothic ProN", "ascii";
+  font-family: 'Yu Mincho', 'Hiragino Mincho Pro', 'MS Mincho', serif;
 }
 
 .gallery {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4列に設定 */
+  gap: 35px; /* アイテム間の隙間 */
   padding: 0 calc(12%); /* 横の端をビューポートの1/6空ける */
-  gap: 20px; /* アイテム間の隙間 */
-  margin-top: 100px; /* ヘッダーの高さと余白 */
+  /* margin-topは.gallery-containerに移動 */
 }
 
 .gallery-item {
@@ -158,7 +197,6 @@ const goToPhotoSection = (folderName) => {
   cursor: pointer; /* クリック可能なカーソル */
   background-color: white; /* 背景色を白に設定 */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 軽いシャドウを追加 */
-  width: calc(25% - 20px); /* 4列表示を確実にするために25%からgapを引く */
 }
 
 .content-wrapper {
@@ -174,9 +212,9 @@ const goToPhotoSection = (folderName) => {
 
 .image-wrapper img {
   width: 100%;
-  height: auto;
+  height: 100%; /* 高さを100%に設定 */
   display: block;
-  object-fit: cover;
+  object-fit: contain; /* 画像が切り取られないようにcontainに変更 */
   transform: scale(1); /* 初期状態 */
   transition: transform 0.3s ease-in-out; /* ホバー時の拡大アニメーション */
 }
@@ -203,9 +241,9 @@ const goToPhotoSection = (folderName) => {
 .image-info {
   width: 100%;
   text-align: center;
-  border-top: 1px solid gray; /* タイトル上のボーダー */
+  border-top: 1px solid white; /* タイトル上のボーダー */
   padding: 10px 0; /* タイトルの上下パディングを1.3倍に */
-  background-color: #f9f9f9; /* タイトル部分の背景色 */
+  background-color: white; /* タイトル部分の背景色 */
 }
 
 .image-title {
@@ -213,6 +251,7 @@ const goToPhotoSection = (folderName) => {
   padding: 0;
   font-size: 18px; /* フォントサイズを1.3倍に (16px * 1.3 ≈ 21px) */
   color: rgb(35, 35, 35); /* タイトルの色 */
+  background-color: white;
 }
 
 /* 画像のフェードインアニメーション */
@@ -223,14 +262,16 @@ const goToPhotoSection = (folderName) => {
 
 /* 縦長ビューポイントの場合 */
 @media (max-aspect-ratio: 16/9) {
+  .gallery-container {
+    margin-top: 100px; /* ヘッダーとギャラリーの間の余白を維持 */
+  }
+
   .gallery {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 80px; /* ヘッダーの高さと余白 */
-    align-items: center; /* アイテムの垂直中央揃え */
-    gap: 20px; /* アイテム間の隙間 */
-    padding: 20px; /* ギャラリー全体のパディング */
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    grid-template-columns: none; /* Gridレイアウトを解除 */
   }
 
   .gallery-item {
@@ -239,9 +280,10 @@ const goToPhotoSection = (folderName) => {
     padding: 13px; /* パディングを1.3倍に */
   }
 
-  .gallery-item img {
-    height: calc(80vh); /* ビューポートの高さの4/5 */
-    object-fit: cover; /* 画像の切り抜き */
+  .image-wrapper img {
+    height: auto; /* 高さを自動に設定 */
+    max-height: 80vh; /* ビューポートの高さの4/5に制限 */
+    object-fit: contain; /* 画像が切り取られないようにcontainに変更 */
   }
 
   .image-title {
@@ -257,25 +299,15 @@ const goToPhotoSection = (folderName) => {
 /* 横長ビューポイントの場合 */
 @media (min-aspect-ratio: 16/9) {
   .gallery {
-    flex-wrap: wrap;
-    justify-content: space-between;
-    padding: 0 calc(12%); /* 横の端をビューポートの1/6空ける */
+    grid-template-columns: repeat(4, 1fr); /* 4列に設定 */
   }
 
   .gallery-item {
-    width: calc(25% - 20px); /* 4列にするための幅（25%からgap分を引く） */
-    margin: 0; /* マージンをリセット */
-    margin-bottom: 20px; /* 下マージンを設定 */
-    max-width: none; /* 最大幅の制限を解除 */
-  }
-
-  .gallery-item img {
-    width: 100%;
-    height: auto;
+    width: auto; /* Gridの設定に任せる */
   }
 
   .image-title {
-    font-size: 16px;
+    font-size: 18px; /* フォントサイズを1.3倍に */
   }
 
   .overlay {

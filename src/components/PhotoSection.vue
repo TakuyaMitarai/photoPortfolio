@@ -66,7 +66,7 @@ onBeforeUnmount(() => {
 
 .image {
   position: sticky;
-  top: 20px;
+  top: 55px;
   width: 100%;
   height: calc(100vh - 20px);
   background-size: contain;
@@ -82,6 +82,6 @@ onBeforeUnmount(() => {
 
 .image.fixed {
   position: fixed;
-  top: 20px;
+  top: 55px;
 }
 </style>
