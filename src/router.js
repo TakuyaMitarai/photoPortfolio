@@ -2,8 +2,9 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Gallery from './components/Gallery.vue';
 import PhotoGallery from './components/PhotoGallery.vue';
-import Research from './components/Research.vue'; // 追加
+import Achievement from './components/Achievement.vue'; // 追加
 import Information from './components/Information.vue'; // 追加
+import Article from './components/Article.vue';
 
 const routes = [
   {
@@ -18,9 +19,15 @@ const routes = [
     props: true,
   },
   {
-    path: '/research',
-    name: 'Research',
-    component: Research,
+    path: '/achievement',
+    name: 'Achievement',
+    component: Achievement,
+  },
+  {
+    path: '/achievement/:id',
+    name: 'Article',
+    component: Article,
+    props: true,
   },
   {
     path: '/information',

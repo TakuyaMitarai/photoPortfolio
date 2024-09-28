@@ -27,7 +27,7 @@
               <!-- プルダウンメニュー -->
               <div class="dropdown" v-if="showDropdown">
                 <router-link to="/" class="dropdown-item" @click="closeDropdown">Gallery</router-link>
-                <router-link to="/research" class="dropdown-item" @click="closeDropdown">Research</router-link>
+                <router-link to="/achievement" class="dropdown-item" @click="closeDropdown">Achievement</router-link>
                 <router-link to="/information" class="dropdown-item" @click="closeDropdown">Information</router-link>
               </div>
             </div>

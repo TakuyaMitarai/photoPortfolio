@@ -1,4 +1,4 @@
-<!-- Research.vue -->
+<!-- achievement.vue -->
 <template>
     <transition name="fade" appear @after-leave="afterLeave">
       <div v-if="!isFadingOut">
@@ -40,11 +40,11 @@
                     Gallery
                   </router-link>
                   <router-link
-                    to="/research"
+                    to="/achievement"
                     class="dropdown-item"
                     @click="closeDropdown"
                   >
-                    Research
+                    Achievement
                   </router-link>
                   <router-link
                     to="/information"
@@ -61,14 +61,14 @@
         <div class="header-line"></div>
   
         <!-- コンテナ -->
-        <div class="research-container">
-          <div class="research-content">
-            <h2 class="section-title">Research</h2>
+        <div class="achievement-container">
+          <div class="achievement-content">
+            <h2 class="section-title">Achievement</h2>
             <!-- 最初の横線 -->
             <div class="content-separator"></div>
             <div class="cards">
               <div
-                v-for="(item, index) in researchItems"
+                v-for="(item, index) in achievementItems"
                 :key="index"
                 class="card"
                 @click="navigateTo(item.url)"
@@ -82,9 +82,8 @@
                     <p class="card-caption">{{ item.caption }}</p>
                   </div>
                 </div>
-                <!-- セパレーターライン -->
-                <div class="card-separator"></div>
                 <div class="card-overlay"></div>
+                <div class="card-separator"></div>
               </div>
             </div>
           </div>
@@ -98,20 +97,25 @@
   import { useRouter } from 'vue-router';
   
   // 研究項目のデータ
-  const researchItems = ref([
+  const achievementItems = ref([
     {
-      image: 'photo1.jpg', // src/assets/images/research1.jpg
-      title: 'Research Title 1',
-      caption: 'This is a brief caption for research item 1.',
-      url: '/research/item1',
+      image: 'achievement/dt.jpg', // src/assets/images/achievement2.jpg
+      title: '多目的共生進化による決定木最適化',
+      caption: 'Simplified Decision Tree Induction with Multi-objective Symbiotic Evolution（2024）',
+      url: '/achievement/DT_with_multi-objective_symbiotic_evolution',
     },
     {
-      image: 'photo2.jpg', // src/assets/images/research2.jpg
-      title: 'Research Title 2',
-      caption: 'This is a brief caption for research item 2.',
-      url: '/research/item2',
+      image: 'achievement/nsse.jpg', // src/assets/images/achievement1.jpg
+      title: '多目的共生進化の有用性の検討',
+      caption: '第24回進化計算学会研究会(2023)',
+      url: '/achievement/nsse',
     },
-    // 追加の研究項目をここに追加
+    {
+      image: 'achievement/mosaic_art.jpg', // src/assets/images/achievement1.jpg
+      title: '進化計算を用いた画像配置の最適化によるモザイク写真生成',
+      caption: '第5回都市大研究プレゼンコンテストにて発表(2022)',
+      url: '/achievement/mosaic_art',
+    },
   ]);
   
   const router = useRouter();
@@ -256,7 +260,7 @@
   }
   
   /* コンテナのスタイル */
-  .research-container {
+  .achievement-container {
     margin-top: 91px; /* ヘッダーとコンテンツの間に余白を追加 */
     background-color: black;
     min-height: 100vh;
@@ -265,7 +269,7 @@
     font-family: 'Yu Mincho', 'Hiragino Mincho Pro', 'MS Mincho', serif;
   }
   
-  .research-content {
+  .achievement-content {
     padding-top: 20px;
   }
   
@@ -278,7 +282,7 @@
   
   /* 最初の横線 */
   .content-separator {
-    width: 80%;
+    width: 100%;
     height: 1px;
     background-color: gray;
     margin: 0 auto 40px auto;
@@ -344,7 +348,7 @@
   
   /* セパレーターライン */
   .card-separator {
-    width: 80%;
+    width: 100%;
     height: 1px;
     background-color: gray;
     margin: 20px auto 0 auto;
@@ -356,7 +360,7 @@
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 99%;
     background-color: rgba(0, 0, 0, 0);
     transition: background-color 0.3s ease;
     pointer-events: none;
@@ -401,7 +405,7 @@
   
   /* レスポンシブデザイン */
   @media (max-width: 768px) {
-    .research-container {
+    .achievement-container {
       padding: 0 5vw;
     }
   
