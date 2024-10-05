@@ -2,12 +2,12 @@
   <transition name="fade" appear @after-leave="afterLeave">
     <div v-if="!isFadingOut" class="gallery-container">
       <header class="header">
-        <div class="header-left"></div> <!-- 左側の空白部分 -->
-        <h1 class="logo">Takuya Mitarai</h1>
+        <div class="header-left"></div> <!-- 左側の空白部分（レイアウト調整用） -->
+        <h1 class="logo">Takuya Mitarai</h1> <!-- ロゴ（中央に配置） -->
         <div class="header-right">
           <div class="menu" ref="menu">
             <div class="menu-icon" @click="toggleDropdown" aria-haspopup="true" :aria-expanded="showDropdown">
-              <!-- ハンバーガーアイコンのSVG -->
+              <!-- メニューアイコン（クリックでドロップダウンメニューを開閉） -->
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -24,36 +24,36 @@
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <line x1="3" y1="18" x2="21" y2="18"></line>
               </svg>
-              <!-- プルダウンメニュー -->
-              <div class="dropdown" v-if="showDropdown">
-                <router-link to="/" class="dropdown-item" @click="closeDropdown">Gallery</router-link>
-                <router-link to="/achievement" class="dropdown-item" @click="closeDropdown">Achievement</router-link>
-                <router-link to="/information" class="dropdown-item" @click="closeDropdown">Information</router-link>
-              </div>
+              <transition name="dropdown-fade">
+                <div class="dropdown" v-if="showDropdown">
+                  <!-- ドロップダウンメニューのリンク -->
+                  <router-link to="/" class="dropdown-item" @click="closeDropdown">Gallery</router-link>
+                  <router-link to="/achievement" class="dropdown-item" @click="closeDropdown">Achievement</router-link>
+                  <router-link to="/information" class="dropdown-item" @click="closeDropdown">Information</router-link>
+                </div>
+              </transition>
             </div>
           </div>
         </div>
       </header>
-      <div class="header-line"></div>
-      <!-- 余白を追加するためのコンテナ -->
+      <div class="header-line"></div> <!-- ヘッダー下のライン -->
       <div class="gallery">
         <div
           v-for="(image, index) in representativeImages"
-          :key="image.name" 
+          :key="image.id || index"
           class="gallery-item"
           :class="{ 'fade-in': image.visible }"
           @click="goToPhotoSection(image.name)"
-          :ref="(el) => (image.elementRef = el)"
         >
           <div class="content-wrapper">
             <div class="image-wrapper">
-              <img :src="image.src" :alt="image.name" />
+              <img :src="image.src" :alt="image.name" /> <!-- 画像の表示 -->
             </div>
             <div class="image-info">
-              <p class="image-title">{{ image.title }}</p>
+              <p class="image-title">{{ image.title }}</p> <!-- 画像タイトルの表示 -->
             </div>
           </div>
-          <div class="overlay"></div>
+          <div class="overlay"></div> <!-- ホバー時のオーバーレイ効果 -->
         </div>
       </div>
     </div>
@@ -61,30 +61,33 @@
 </template>
 
 <script setup>
-import { onMounted, ref, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
-import { representativeImages } from '../data/representativePhotos.js'; // 名前付きエクスポートをインポート
+import { representativeImages } from '../data/representativePhotos.js';
+import { throttle } from 'lodash';
 
 const router = useRouter();
-const isFadingOut = ref(false); // フェードアウト状態を管理
-const navigateTo = ref(null);   // 遷移先のルート情報を保持
-const showDropdown = ref(false); // ドロップダウンメニューの表示状態を管理
-const menu = ref(null); // メニューコンテナへの参照
+const isFadingOut = ref(false);
+const navigateTo = ref(null);
+const showDropdown = ref(false);
+const menu = ref(null);
 
-// フェードアウト後にページ遷移を実行する関数
+// フェードアウト完了後にページ遷移を実行する関数
 const afterLeave = () => {
   if (navigateTo.value) {
-    router.push(navigateTo.value);
+    router.push(navigateTo.value).catch((error) => {
+      console.error('ルート遷移中にエラーが発生しました:', error);
+    });
   }
 };
 
-// クリック時にフェードアウトを開始し、遷移先を設定する関数
+// 画像クリック時にフェードアウトを開始し、遷移先を設定する関数
 const goToPhotoSection = (folderName) => {
-  isFadingOut.value = true; // フェードアウトを開始
-  navigateTo.value = { name: 'PhotoGallery', params: { folderName } }; // 遷移先を設定
+  isFadingOut.value = true;
+  navigateTo.value = { name: 'PhotoGallery', params: { folderName } };
 };
 
-// ドロップダウンメニューを切り替える関数
+// ドロップダウンメニューの表示・非表示を切り替える関数
 const toggleDropdown = () => {
   showDropdown.value = !showDropdown.value;
 };
@@ -94,41 +97,78 @@ const closeDropdown = () => {
   showDropdown.value = false;
 };
 
-// 外部クリックを検出してドロップダウンメニューを閉じる関数
-const handleClickOutside = (event) => {
+// メニュー外のクリックを検出してドロップダウンメニューを閉じる関数
+const handleClickOutside = throttle((event) => {
   if (menu.value && !menu.value.contains(event.target)) {
     showDropdown.value = false;
   }
-};
+}, 300);
 
-// Intersection Observer の設定
-onMounted(() => {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        const index = representativeImages.findIndex(
-          (image) => image.elementRef === entry.target
-        );
-        if (entry.isIntersecting && index !== -1 && !representativeImages[index].visible) {
-          setTimeout(() => {
-            representativeImages[index].visible = true;
-          }, index * 100); // 0.1秒ずつ遅延
-          observer.unobserve(entry.target);
+// 画像をバッチごとに読み込み、表示タイミングを制御する関数
+const revealImagesInBatches = () => {
+  const batchSize = 8; // 1バッチあたりの画像数
+  const displayInterval = 200; // 各画像の表示間隔（ミリ秒）0.4秒
+  let initialDelay = 400; // 初期遅延（ミリ秒）
+  const totalImages = representativeImages.length;
+  let currentIndex = 0;
+
+  const loadNextBatch = () => {
+    if (currentIndex >= totalImages) return;
+
+    const batch = representativeImages.slice(currentIndex, currentIndex + batchSize);
+    let loadedCount = 0;
+
+    // バッチ内の画像を読み込み開始
+    batch.forEach((image, idx) => {
+      const img = new Image();
+      img.src = image.src;
+      img.onload = () => {
+        loadedCount++;
+        if (loadedCount === batch.length) {
+          // バッチ内の全画像のロードが完了したら表示を開始
+          batch.forEach((imgObj, idx) => {
+            setTimeout(() => {
+              imgObj.visible = true;
+            }, initialDelay + idx * displayInterval);
+          });
+          // 次のバッチを読み込み開始
+          currentIndex += batchSize;
+          initialDelay = 0; // 次のバッチからは初期遅延を適用しない
+          loadNextBatch();
         }
-      });
-    },
-    {
-      threshold: 0.1,
-    }
-  );
+      };
+      img.onerror = () => {
+        console.error(`画像の読み込みに失敗しました: ${image.src}`);
+        loadedCount++;
+        if (loadedCount === batch.length) {
+          // エラーがあっても次のバッチに進む
+          batch.forEach((imgObj, idx) => {
+            setTimeout(() => {
+              imgObj.visible = true;
+            }, initialDelay + idx * displayInterval);
+          });
+          currentIndex += batchSize;
+          initialDelay = 0;
+          loadNextBatch();
+        }
+      };
+    });
+  };
 
+  // 画像の visible プロパティを初期化
   representativeImages.forEach((image) => {
-    if (image.elementRef) {
-      observer.observe(image.elementRef);
-    }
+    image.visible = false;
   });
 
-  // ドロップダウンメニュー外のクリックを監視
+  // 最初のバッチの読み込みを開始
+  loadNextBatch();
+};
+
+// コンポーネントがマウントされたときの処理
+onMounted(() => {
+  revealImagesInBatches();
+
+  // ドロップダウンメニュー外のクリックを検出するイベントリスナーを追加
   document.addEventListener('click', handleClickOutside);
 });
 
@@ -139,6 +179,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+/* 既存のスタイルはそのまま */
 .header {
   position: fixed;
   top: 0;
@@ -148,11 +189,11 @@ onBeforeUnmount(() => {
   z-index: 1000;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* 左右に配置 */
+  justify-content: space-between; /* ヘッダーの左右をスペースで分ける配置 */
 }
 
 .header-left {
-  flex: 1; /* 左側の空白部分 */
+  flex: 1; /* 左側の空白部分（レイアウト調整用） */
 }
 
 .logo {
@@ -165,7 +206,6 @@ onBeforeUnmount(() => {
   text-align: center;
   white-space: nowrap; /* テキストを一行にまとめる */
 }
-
 
 .header-right {
   flex: 1;
@@ -181,30 +221,27 @@ onBeforeUnmount(() => {
 .menu-icon {
   color: white; /* アイコンの色を白に設定 */
   cursor: pointer;
-  position: relative;
-  margin-right: 0px; /* 右から左に20px移動 */
 }
 
 .menu-icon svg {
   display: block;
 }
 
-/* プルダウンメニュー */
+/* ドロップダウンメニューのスタイル */
 .dropdown {
   position: absolute;
   top: 30px; /* アイコンの下に配置 */
   right: 0;
-  background-color: rgba(0, 174, 130, 0); /* 背景色を白に設定 */
+  background-color: rgba(0, 174, 130, 0); /* 背景色を透明に設定 */
   min-width: 100px;
   box-shadow: 0px 8px 16px 0px rgba(255, 255, 255, 0.215);
   z-index: 1;
   border-radius: 4px;
   overflow: hidden;
-  animation: fadeIn 0.3s ease-in-out;
 }
 
 .dropdown-item {
-  color: rgb(255, 255, 255); /* テキスト色を黒に設定 */
+  color: rgb(255, 255, 255); /* テキスト色を白に設定 */
   padding: 12px 16px;
   text-decoration: none;
   display: block;
@@ -212,10 +249,10 @@ onBeforeUnmount(() => {
 }
 
 .dropdown-item:hover {
-  background-color:rgba(114, 114, 114, 0.502);
+  background-color: rgba(114, 114, 114, 0.502); /* ホバー時の背景色変更 */
 }
 
-/* フェードインアニメーション */
+/* ドロップダウンのフェードインアニメーション */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -223,17 +260,16 @@ onBeforeUnmount(() => {
 
 .header-line {
   width: 100%;
-  height: 2px; /* ラインの太さ */
+  height: 2px; /* ヘッダー下のラインの太さ */
   background-color: #ccc; /* ラインの色（グレー） */
   position: fixed;
-  top: 56px; /* ヘッダーの高さ + padding の調整 */
-  z-index: 999; /* ヘッダーの下に表示 */
+  top: 56px;
+  z-index: 999;
 }
 
-/* 明朝体フォントの設定 */
+/* ギャラリーコンテナのスタイル */
 .gallery-container {
-  /* ヘッダーとギャラリーの間に余白を追加 */
-  margin-top: 91px; /* 必要に応じて調整してください */
+  margin-top: 91px; /* ヘッダーとギャラリーの間の余白 */
   background-color: black;
 }
 
@@ -244,10 +280,9 @@ onBeforeUnmount(() => {
 
 .gallery {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4列に設定 */
-  gap: 35px; /* アイテム間の隙間 */
+  grid-template-columns: repeat(4, 1fr); /* 4列に配置 */
+  gap: 35px; /* アイテム間の余白 */
   padding: 0 calc(12%); /* 横の端をビューポートの1/6空ける */
-  /* margin-topは.gallery-containerに移動 */
 }
 
 .gallery-item {
@@ -255,14 +290,12 @@ onBeforeUnmount(() => {
   position: relative;
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 0.5s ease-in, transform 0.5s ease-in;
-  display: flex;
-  flex-direction: column;
-  border: 3px solid gray; /* グレーのボーダー */
-  padding: 13px; /* パディングを1.3倍に */
-  cursor: pointer; /* クリック可能なカーソル */
-  background-color: white; /* 背景色を白に設定 */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* 軽いシャドウを追加 */
+}
+
+.gallery-item.fade-in {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.4s ease-in, transform 0.4s ease-in;
 }
 
 .content-wrapper {
@@ -278,11 +311,11 @@ onBeforeUnmount(() => {
 
 .image-wrapper img {
   width: 100%;
-  height: 100%; /* 高さを100%に設定 */
+  height: 100%;
   display: block;
-  object-fit: contain; /* 画像が切り取られないようにcontainに変更 */
-  transform: scale(1); /* 初期状態 */
-  transition: transform 0.5s ease-in-out; /* ホバー時の拡大アニメーション */
+  object-fit: contain; /* 画像が切り取られないように調整 */
+  transform: scale(1);
+  transition: transform 0.5s ease-in-out; /* ホバー時のズームアニメーション */
 }
 
 .gallery-item:hover .image-wrapper img {
@@ -297,69 +330,33 @@ onBeforeUnmount(() => {
   height: 100%;
   background-color: rgba(0, 0, 0, 0); /* 初期は透明 */
   transition: background-color 0.5s;
-  pointer-events: none; /* オーバーレイがクリックを妨げないように */
+  pointer-events: none;
 }
 
 .gallery-item:hover .overlay {
-  background-color: rgba(0, 0, 0, 0.2); /* 透過率20%の黒 */
+  background-color: rgba(0, 0, 0, 0.2); /* ホバー時にオーバーレイ */
 }
 
 .image-info {
   width: 100%;
   text-align: center;
-  border-top: 1px solid white; /* タイトル上のボーダー */
-  padding: 10px 0; /* タイトルの上下パディングを1.3倍に */
-  background-color: white; /* タイトル部分の背景色 */
+  border-top: 1px solid white;
+  padding: 10px 0;
+  background-color: white;
 }
 
 .image-title {
   margin: 0;
   padding: 0;
-  font-size: 18px; /* フォントサイズを1.3倍に (16px * 1.3 ≈ 21px) */
-  color: rgb(35, 35, 35); /* タイトルの色 */
+  font-size: 18px;
+  color: rgb(35, 35, 35);
   background-color: white;
 }
 
-/* 画像のフェードインアニメーション */
-.gallery-item.fade-in {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* フェード遷移の定義 */
-.fade-enter-active,
-.fade-leave-active,
-.fade-appear-active { /* 追加 */
-  transition: opacity 0.5s;
-}
-.fade-enter-from,
-.fade-leave-to,
-.fade-appear-from { /* 追加 */
-  opacity: 0;
-}
-.fade-enter-to,
-.fade-leave-from,
-.fade-appear-to { /* 追加 */
-  opacity: 1;
-}
-
-/* フェードイン時に位置もアニメーション */
-.fade-appear-active {
-  transition: opacity 0.5s ease-in, transform 0.5s ease-in;
-}
-.fade-appear-from {
-  opacity: 0;
-  transform: translateY(20px);
-}
-.fade-appear-to {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* 縦長ビューポイントの場合 */
+/* 縦長のビューポートに対するスタイル */
 @media (max-aspect-ratio: 14/9) {
   .gallery-container {
-    margin-top: 100px; /* ヘッダーとギャラリーの間の余白を維持 */
+    margin-top: 100px;
   }
 
   .gallery {
@@ -367,23 +364,23 @@ onBeforeUnmount(() => {
     flex-direction: column;
     align-items: center;
     padding: 20px;
-    grid-template-columns: none; /* Gridレイアウトを解除 */
+    grid-template-columns: none;
   }
 
   .gallery-item {
-    width: 100%; /* 1列表示 */
-    max-width: none; /* 最大幅の制限を解除 */
-    padding: 13px; /* パディングを1.3倍に */
+    width: 100%;
+    max-width: none;
+    padding: 13px;
   }
 
   .image-wrapper img {
-    height: auto; /* 高さを自動に設定 */
-    max-height: 80vh; /* ビューポートの高さの4/5に制限 */
-    object-fit: contain; /* 画像が切り取られないようにcontainに変更 */
+    height: auto;
+    max-height: 80vh;
+    object-fit: contain;
   }
 
   .image-title {
-    font-size: 18px; /* フォントサイズを1.3倍に */
+    font-size: 18px;
   }
 
   .overlay {
@@ -392,18 +389,18 @@ onBeforeUnmount(() => {
   }
 }
 
-/* 横長ビューポイントの場合 */
+/* 横長のビューポートに対するスタイル */
 @media (min-aspect-ratio: 14/9) {
   .gallery {
     grid-template-columns: repeat(4, 1fr); /* 4列に設定 */
   }
 
   .gallery-item {
-    width: auto; /* Gridの設定に任せる */
+    width: auto;
   }
 
   .image-title {
-    font-size: 18px; /* フォントサイズを1.3倍に */
+    font-size: 18px;
   }
 
   .overlay {
